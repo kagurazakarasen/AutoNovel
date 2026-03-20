@@ -1,5 +1,10 @@
 # AutoNovel
 
+<div>
+<video controls src="https://github.com/user-attachments/assets/83e476de-a5dd-4293-8280-395b2754cc05" muted="false"></video>
+</div>
+
+
 AIが自動で小説を生成するWebアプリケーションです。ジャンル・舞台・主人公・テーマなどをステップ形式で選択するだけで、GPT-4oが完結した日本語小説を執筆します。
 
 ## 機能
