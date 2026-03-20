@@ -5,19 +5,18 @@
 </div>
 
 
-AIが自動で小説を生成するWebアプリケーションです。ジャンル・舞台・主人公・テーマなどをステップ形式で選択するだけで、GPT-4oが完結した日本語小説を執筆します。
+AIが自動で小説を生成するWebアプリケーションです。ジャンル・舞台・主人公・テーマなどをステップ形式で選択するだけで、ローカルLLM（Ollama）が完結した日本語小説を執筆します。
 
 ## 機能
 
 - 6つの質問（ジャンル／舞台設定／主人公／テーマ／トーン／文字数）を順番に選択
-- 選択内容に基づき GPT-4o がリアルタイムストリーミングで小説を生成
+- 選択内容に基づきローカルLLM（Ollama）がリアルタイムストリーミングで小説を生成
 - 生成した小説をクリップボードにコピー、またはテキストファイルとして保存
 
 ## 必要環境
 
 - Python 3.9 以上
-- OpenAI API キー（[https://platform.openai.com/api-keys](https://platform.openai.com/api-keys) から取得）
-- OpenAI アカウントに利用クレジットがあること（[課金設定](https://platform.openai.com/account/billing)）
+- [Ollama](https://ollama.com/) がローカルにインストール済みであること
 
 ## セットアップ
 
@@ -34,23 +33,35 @@ cd AutoNovel
 pip install -r requirements.txt
 ```
 
-### 3. APIキーの設定
+### 3. Ollamaのセットアップ
 
-
-`.env.example` ファイルを `.env`にコピー
+Ollamaをインストールして、使用するモデルを取得します。
 
 ```bash
-cp .env.example .env
+ollama pull llama3.2
 ```
 
+### 4. 設定（任意）
 
-`.env` ファイルを編集し、取得した OpenAI API キーを設定します。
+デフォルト設定のままで動作しますが、モデルやエンドポイントを変更したい場合は `.env` ファイルを作成して設定します。
+
+**Ollama（デフォルト）**
 
 ```env
-OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+OLLAMA_BASE_URL=http://localhost:11434/v1
+OLLAMA_MODEL=llama3.2
+LLM_API_KEY=ollama
 ```
 
-### 4. サーバーの起動
+**OpenAI に切り替える場合**
+
+```env
+OLLAMA_BASE_URL=https://api.openai.com/v1
+OLLAMA_MODEL=gpt-4o
+LLM_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+### 5. サーバーの起動
 
 ```bash
 python app.py
@@ -83,13 +94,13 @@ AutoNovel/
 
 ## 注意事項
 
-- `.env` ファイルは絶対に Git にコミットしないでください。`.gitignore` に追加することを推奨します。
 - 本アプリは開発用サーバー（Flask debug mode）で動作します。本番環境での公開には別途 WSGI サーバー（Gunicorn 等）を使用してください。
+- 日本語小説の生成には、日本語対応のモデル（例: `llama3.2`, `qwen2.5`, `gemma3` など）の使用を推奨します。
 
 ## トラブルシューティング
 
 | エラー | 原因 | 対処 |
 |--------|------|------|
-| APIキーが無効です | `.env` のキーが誤っている | 正しいキーを再設定 |
-| You exceeded your current quota | OpenAI の利用クレジット不足 | [課金ページ](https://platform.openai.com/account/billing/overview)でクレジットを追加 |
+| APIエラーが発生しました | Ollama が起動していない | `ollama serve` を実行して Ollama を起動する |
+| モデルが見つからない | 指定モデルが未取得 | `ollama pull <モデル名>` を実行 |
 | Failed to fetch | Flask サーバーが起動していない | `python app.py` を実行 |

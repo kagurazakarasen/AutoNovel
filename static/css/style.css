@@ -390,6 +390,13 @@ body {
   display: block;
 }
 
+/* フッター区切り線 */
+.novel-divider {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 28px 0 12px;
+}
+
 /* ストリーミング時のカーソル */
 .cursor {
   display: inline-block;

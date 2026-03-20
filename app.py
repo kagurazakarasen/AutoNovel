@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, jsonify, Response, stream_with_context
-from openai import OpenAI, AuthenticationError, APIError
+from openai import OpenAI, APIError
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -54,10 +54,6 @@ def index():
 
 @app.route("/generate", methods=["POST"])
 def generate():
-    api_key = os.environ.get("OPENAI_API_KEY")
-    if not api_key:
-        return jsonify({"error": "APIキーが設定されていません。.envファイルにOPENAI_API_KEYを設定してください。"}), 500
-
     data = request.get_json()
     if not data:
         return jsonify({"error": "リクエストが不正です。"}), 400
@@ -89,9 +85,12 @@ def generate():
 
     def generate_stream():
         try:
-            client = OpenAI(api_key=api_key)
+            ollama_base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+            ollama_model = os.environ.get("OLLAMA_MODEL", "llama3.2")
+            llm_api_key = os.environ.get("LLM_API_KEY", "ollama")
+            client = OpenAI(base_url=ollama_base_url, api_key=llm_api_key)
             stream = client.chat.completions.create(
-                model="gpt-4o",
+                model=ollama_model,
                 messages=[
                     {
                         "role": "system",
@@ -107,8 +106,7 @@ def generate():
                 delta = chunk.choices[0].delta.content
                 if delta:
                     yield delta
-        except AuthenticationError:
-            yield "\n\n【エラー】APIキーが無効です。正しいOPENAI_API_KEYを.envファイルに設定してください。"
+            yield f"\n\n---\n（{ollama_model}）で生成"
         except APIError as e:
             yield f"\n\n【エラー】APIエラーが発生しました: {e}"
         except Exception as e:

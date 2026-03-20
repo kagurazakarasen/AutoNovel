@@ -183,6 +183,9 @@ function formatNovelHtml(text) {
       if (line.startsWith("# ")) {
         return `<span class="novel-title-line">${escapeHtml(line.slice(2))}</span>`;
       }
+      if (line === "---") {
+        return "<hr class=\"novel-divider\">";
+      }
       return escaped;
     })
     .join("\n");
