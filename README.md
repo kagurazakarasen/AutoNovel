@@ -27,7 +27,7 @@ AIが自動で小説を生成するWebアプリケーションです。ジャン
 ### 1. リポジトリのクローン
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/kagurazakarasen/AutoNovel.git
 cd AutoNovel
 ```
 
@@ -75,7 +75,7 @@ python app.py
 
 ## 使い方
 
-1. 「小説を作る」ボタンをクリック
+1. 「はじめる → 」ボタンをクリック
 2. 表示される6つの質問に順番に回答
 3. AIが小説を自動生成（生成中はリアルタイムでテキストが表示されます）
 4. 完成した小説を「コピー」または「保存」で取得
