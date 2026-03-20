@@ -36,6 +36,14 @@ pip install -r requirements.txt
 
 ### 3. APIキーの設定
 
+
+`.env.example` ファイルを `.env`にコピー
+
+```bash
+cp .env.example .env
+```
+
+
 `.env` ファイルを編集し、取得した OpenAI API キーを設定します。
 
 ```env
