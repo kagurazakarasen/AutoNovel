@@ -1,7 +1,7 @@
 # AutoNovel
 
 <div>
-<video controls src="https://github.com/user-attachments/assets/83e476de-a5dd-4293-8280-395b2754cc05" muted="false"></video>
+<video controls src="https://github.com/user-attachments/assets/5ea7392c-a190-471f-af12-edc27d2df4de" muted="false"></video>
 </div>
 
 
