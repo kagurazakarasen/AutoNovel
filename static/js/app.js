@@ -6,6 +6,7 @@
 let currentIndex = 0;
 let answers = {};
 let novelText = "";
+let plotseedText = "";
 
 /* ===========================
    DOM References
@@ -16,6 +17,17 @@ const copyBtn     = document.getElementById("copy-btn");
 const downloadBtn = document.getElementById("download-btn");
 const restartBtn  = document.getElementById("restart-btn");
 
+const plotseedRange    = document.getElementById("plotseed-range");
+const plotseedValue    = document.getElementById("plotseed-value");
+const plotseedTextarea = document.getElementById("plotseed-textarea");
+const plotseedCountText = document.getElementById("plotseed-count-text");
+const plotseedRerollBtn = document.getElementById("plotseed-reroll-btn");
+const plotseedNextBtn  = document.getElementById("plotseed-next-btn");
+
+const textInputArea     = document.getElementById("text-input-area");
+const textInputTextarea = document.getElementById("text-input-textarea");
+const textInputNextBtn  = document.getElementById("text-input-next-btn");
+
 /* ===========================
    Event Listeners
 =========================== */
@@ -24,6 +36,23 @@ prevBtn.addEventListener("click", prevQuestion);
 copyBtn.addEventListener("click", copyNovel);
 downloadBtn.addEventListener("click", downloadNovel);
 restartBtn.addEventListener("click", restartApp);
+
+plotseedRange.addEventListener("input", () => {
+  plotseedValue.textContent = `${plotseedRange.value}%`;
+});
+plotseedRange.addEventListener("change", () => {
+  fetchPlotSeedPreview(plotseedRange.value);
+});
+plotseedRerollBtn.addEventListener("click", () => {
+  fetchPlotSeedPreview(plotseedRange.value);
+});
+plotseedNextBtn.addEventListener("click", () => {
+  plotseedText = plotseedTextarea.value;
+  currentIndex = 0;
+  showScreen("question-screen");
+  renderQuestion(currentIndex);
+});
+textInputNextBtn.addEventListener("click", handleTextInputNext);
 
 /* ===========================
    Screen Management
@@ -39,8 +68,24 @@ function showScreen(id) {
 function startQuiz() {
   currentIndex = 0;
   answers = {};
-  showScreen("question-screen");
-  renderQuestion(currentIndex);
+  plotseedText = "";
+  plotseedRange.value = 50;
+  plotseedValue.textContent = "50%";
+  showScreen("plotseed-screen");
+  fetchPlotSeedPreview(plotseedRange.value);
+}
+
+async function fetchPlotSeedPreview(rate) {
+  plotseedCountText.textContent = "抽出中...";
+  plotseedTextarea.value = "";
+  try {
+    const res = await fetch(`/plotseed?rate=${encodeURIComponent(rate)}`);
+    const data = await res.json();
+    plotseedTextarea.value = (data.lines || []).join("\n");
+    plotseedCountText.textContent = `全${data.total}行中 ${data.count}行を使用（${data.rate}%）`;
+  } catch (e) {
+    plotseedCountText.textContent = "プロットシードの取得に失敗しました。";
+  }
 }
 
 function renderQuestion(index) {
@@ -52,9 +97,20 @@ function renderQuestion(index) {
   document.getElementById("progress-fill").style.width =
     `${(index / QUESTIONS.length) * 100}%`;
 
-  prevBtn.style.visibility = index > 0 ? "visible" : "hidden";
+  prevBtn.style.visibility = "visible";
 
   const grid = document.getElementById("options-grid");
+
+  if (q.type === "text") {
+    grid.style.display = "none";
+    textInputArea.style.display = "block";
+    textInputTextarea.placeholder = q.placeholder || "";
+    textInputTextarea.value = answers[q.id] || "";
+    return;
+  }
+
+  grid.style.display = "";
+  textInputArea.style.display = "none";
   grid.innerHTML = "";
 
   // 3択のときは3カラムに
@@ -87,10 +143,24 @@ function handleOptionClick(questionId, value, clickedBtn) {
   }, 280);
 }
 
+function handleTextInputNext() {
+  const q = QUESTIONS[currentIndex];
+  answers[q.id] = textInputTextarea.value.trim();
+
+  currentIndex++;
+  if (currentIndex < QUESTIONS.length) {
+    renderQuestion(currentIndex);
+  } else {
+    generateNovel();
+  }
+}
+
 function prevQuestion() {
   if (currentIndex > 0) {
     currentIndex--;
     renderQuestion(currentIndex);
+  } else {
+    showScreen("plotseed-screen");
   }
 }
 
@@ -119,7 +189,7 @@ async function generateNovel() {
     const res = await fetch("/generate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ answers }),
+      body: JSON.stringify({ answers, plotseed_text: plotseedText }),
     });
 
     clearInterval(statusTimer);
@@ -232,6 +302,7 @@ function downloadNovel() {
 function restartApp() {
   answers = {};
   novelText = "";
+  plotseedText = "";
   currentIndex = 0;
   showScreen("start-screen");
 }

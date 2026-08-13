@@ -274,6 +274,71 @@ body {
 }
 
 /* ===========================
+   Plot Seed Screen
+=========================== */
+.gauge-area {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.gauge-area input[type="range"] {
+  flex: 1;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.gauge-value {
+  min-width: 52px;
+  text-align: right;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--primary-dark);
+}
+
+.plotseed-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.plotseed-count-text {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.plotseed-textarea {
+  width: 100%;
+  resize: vertical;
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text);
+  background: #faf9ff;
+}
+
+.plotseed-textarea:focus {
+  outline: none;
+  border-color: var(--primary-light);
+}
+
+/* ===========================
+   Text Input Question
+=========================== */
+.text-input-area {
+  display: none;
+}
+
+.text-input-area .plotseed-textarea {
+  margin-bottom: 16px;
+}
+
+/* ===========================
    Nav Buttons
 =========================== */
 .nav-buttons {

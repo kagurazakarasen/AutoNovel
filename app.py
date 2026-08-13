@@ -1,4 +1,5 @@
 import os
+import random
 from flask import Flask, render_template, request, jsonify, Response, stream_with_context
 from openai import OpenAI, APIError
 from dotenv import load_dotenv
@@ -6,6 +7,27 @@ from dotenv import load_dotenv
 load_dotenv()
 
 app = Flask(__name__)
+
+PLOTSEED_PATH = os.path.join(os.path.dirname(__file__), "plotseed.md")
+
+
+def load_plot_seeds():
+    """plotseed.md の各行（# 始まりのコメント行）をプロット候補として読み込む"""
+    lines = []
+    try:
+        with open(PLOTSEED_PATH, encoding="utf-8") as f:
+            for raw_line in f:
+                line = raw_line.strip()
+                if line.startswith("#"):
+                    line = line.lstrip("#").strip()
+                if line:
+                    lines.append(line)
+    except FileNotFoundError:
+        pass
+    return lines
+
+
+PLOT_SEEDS = load_plot_seeds()
 
 QUESTIONS = [
     {
@@ -37,6 +59,12 @@ QUESTIONS = [
         "id": "length",
         "question": "小説の長さを選んでください",
         "options": ["短編（約800字）", "中編（約2000字）", "長編（約4000字）"]
+    },
+    {
+        "id": "custom_settings",
+        "question": "主人公の名前や恋人、敵の名前など、必要な設定項目があれば記入してください（未記入でランダム）",
+        "type": "text",
+        "placeholder": "例）主人公: 陽翔／恋人: 美月／敵: 黒崎 など（空欄でも構いません）"
     }
 ]
 
@@ -52,6 +80,26 @@ def index():
     return render_template("index.html", questions=QUESTIONS)
 
 
+@app.route("/plotseed", methods=["GET"])
+def plotseed():
+    """使用率（0〜100%）に応じてプロットシードをランダム抽出して返す"""
+    try:
+        rate = int(request.args.get("rate", 100))
+    except ValueError:
+        rate = 100
+    rate = max(0, min(100, rate))
+
+    count = round(len(PLOT_SEEDS) * rate / 100)
+    selected = random.sample(PLOT_SEEDS, count) if count > 0 else []
+
+    return jsonify({
+        "lines": selected,
+        "total": len(PLOT_SEEDS),
+        "count": count,
+        "rate": rate,
+    })
+
+
 @app.route("/generate", methods=["POST"])
 def generate():
     data = request.get_json()
@@ -59,10 +107,26 @@ def generate():
         return jsonify({"error": "リクエストが不正です。"}), 400
 
     answers = data.get("answers", {})
+    plotseed_text = (data.get("plotseed_text") or "").strip()
+    custom_settings_text = (answers.get("custom_settings") or "").strip()
 
     length_label, max_tokens = LENGTH_MAP.get(
         answers.get("length", "短編（約800字）"), ("約800文字", 900)
     )
+
+    plot_section = ""
+    if plotseed_text:
+        plot_section = f"""
+【プロット構成要素（以下の展開を物語に取り入れてください）】
+{plotseed_text}
+"""
+
+    custom_section = ""
+    if custom_settings_text:
+        custom_section = f"""
+【登場人物などのカスタム設定（指定がなければ自由に決めてください）】
+{custom_settings_text}
+"""
 
     prompt = f"""あなたは才能豊かな日本人小説家です。以下の条件に従い、読者を引き込む魅力的な小説を書いてください。
 
@@ -73,7 +137,7 @@ def generate():
 - テーマ: {answers.get("theme", "")}
 - トーン・雰囲気: {answers.get("tone", "")}
 - 文字数の目安: {length_label}
-
+{plot_section}{custom_section}
 【執筆の注意事項】
 - 最初にタイトルを「# タイトル名」の形式で記載してください
 - 美しい日本語で書いてください
