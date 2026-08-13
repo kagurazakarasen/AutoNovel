@@ -24,6 +24,37 @@
     </div>
   </div>
 
+  <!-- ===== プロットシード設定画面 ===== -->
+  <div id="plotseed-screen" class="screen">
+    <div class="container">
+      <div class="question-card">
+        <p class="question-step">物語構成の質問</p>
+        <h2 class="question-text">プロットシードの使用率を設定してください</h2>
+        <p class="description">
+          物語の展開の型となる「プロットシード」を、スライダーで指定した割合だけ抽出して物語に反映します。<br />
+          下のプレビューを確認し、気に入らない場合は「やり直す」で再抽選、または直接テキストを編集できます。
+        </p>
+        <div class="gauge-area">
+          <input type="range" id="plotseed-range" min="0" max="100" step="1" value="50" />
+          <span class="gauge-value" id="plotseed-value">50%</span>
+        </div>
+        <div class="plotseed-preview-header">
+          <span class="plotseed-count-text" id="plotseed-count-text"></span>
+          <button class="btn-icon" id="plotseed-reroll-btn">🔄 やり直す</button>
+        </div>
+        <textarea
+          class="plotseed-textarea"
+          id="plotseed-textarea"
+          rows="10"
+          placeholder="使用率が0%の場合、プロットシードは使用されません"
+        ></textarea>
+      </div>
+      <div class="nav-buttons">
+        <button class="btn-primary" id="plotseed-next-btn">次へ →</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ===== 質問画面 ===== -->
   <div id="question-screen" class="screen">
     <div class="container">
@@ -38,6 +69,10 @@
         <p class="question-step" id="question-step">質問 1</p>
         <h2 class="question-text" id="question-text"></h2>
         <div class="options-grid" id="options-grid"></div>
+        <div class="text-input-area" id="text-input-area">
+          <textarea class="plotseed-textarea" id="text-input-textarea" rows="5"></textarea>
+          <button class="btn-primary" id="text-input-next-btn">次へ →</button>
+        </div>
       </div>
 
       <div class="nav-buttons">
