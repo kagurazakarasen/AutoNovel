@@ -91,7 +91,8 @@ AutoNovel/
 ├── requirements.txt    # 依存パッケージ
 ├── .env                # APIキー設定（Gitには含めないこと）
 ├── templates/
-│   └── index.html      # メインHTML
+│   ├── index.html      # メインHTML
+│   └── plotseed.md     # プロットシード定義
 └── static/
     ├── css/
     │   └── style.css   # スタイルシート

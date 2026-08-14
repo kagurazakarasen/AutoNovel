@@ -8,11 +8,11 @@ load_dotenv()
 
 app = Flask(__name__)
 
-PLOTSEED_PATH = os.path.join(os.path.dirname(__file__), "plotseed.md")
+PLOTSEED_PATH = os.path.join(os.path.dirname(__file__), "templates", "plotseed.md")
 
 
 def load_plot_seeds():
-    """plotseed.md の各行（# 始まりのコメント行）をプロット候補として読み込む"""
+    """templates/plotseed.md の各行（# 始まりのコメント行）をプロット候補として読み込む"""
     lines = []
     try:
         with open(PLOTSEED_PATH, encoding="utf-8") as f:

@@ -104,6 +104,13 @@ body {
   margin-bottom: 8px;
 }
 
+.app-version {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
 .app-subtitle {
   font-size: 16px;
   color: var(--text-muted);
